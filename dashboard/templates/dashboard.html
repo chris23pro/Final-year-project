@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>IoT Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family: Arial;
+background:#111;
+color:white;
+text-align:center;
+}
+
+canvas{
+background:white;
+margin:20px;
+padding:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>IoT Device Dashboard</h1>
+
+<h2>Temperature Sensor</h2>
+<canvas id="tempChart" width="600" height="200"></canvas>
+
+<h2>Power Monitor</h2>
+<canvas id="powerChart" width="600" height="200"></canvas>
+
+<h2>Remote Control Device</h2>
+<canvas id="controlChart" width="600" height="200"></canvas>
+
+<script>
+
+const tempCtx = document.getElementById('tempChart').getContext('2d');
+const powerCtx = document.getElementById('powerChart').getContext('2d');
+const controlCtx = document.getElementById('controlChart').getContext('2d');
+
+const tempChart = new Chart(tempCtx, {
+type:'line',
+data:{
+labels:[],
+datasets:[{
+label:'Temperature (°C)',
+data:[],
+borderColor:'red',
+borderWidth:2
+}]
+}
+});
+
+const powerChart = new Chart(powerCtx, {
+type:'line',
+data:{
+labels:[],
+datasets:[{
+label:'Power (Watts)',
+data:[],
+borderColor:'blue',
+borderWidth:2
+}]
+}
+});
+
+const controlChart = new Chart(controlCtx, {
+type:'line',
+data:{
+labels:[],
+datasets:[{
+label:'Device State (1=ON 0=OFF)',
+data:[],
+borderColor:'green',
+borderWidth:2
+}]
+}
+});
+
+function updateCharts(){
+
+fetch('/data')
+.then(response=>response.json())
+.then(data=>{
+
+tempChart.data.labels=data.labels;
+powerChart.data.labels=data.labels;
+controlChart.data.labels=data.labels;
+
+tempChart.data.datasets[0].data=data.temperature;
+powerChart.data.datasets[0].data=data.power;
+controlChart.data.datasets[0].data=data.controls;
+
+tempChart.update();
+powerChart.update();
+controlChart.update();
+
+});
+
+}
+
+setInterval(updateCharts,2000);
+
+</script>
+
+</body>
+</html>	
