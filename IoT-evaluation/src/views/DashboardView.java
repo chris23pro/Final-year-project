@@ -1,30 +1,34 @@
 package views;
 
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-
 import services.MQTTService;
 
+/**
+ * Console-based dashboard view.
+ * Replaces JavaFX dependencies so the project can run in minimal setups.
+ */
 public class DashboardView {
 
-    public Scene createScene() {
+    private final MQTTService mqttService;
 
-        Label title = new Label("IoT Security Dashboard");
-        Label dataLabel = new Label("No data yet");
+    public DashboardView() {
+        this.mqttService = new MQTTService();
+    }
 
-        Button connectBtn = new Button("Connect to MQTT");
+    public void start() {
+        System.out.println("=======================================");
+        System.out.println("      IoT Security Dashboard (CLI)     ");
+        System.out.println("=======================================");
 
-        MQTTService mqtt = new MQTTService();
+        boolean connected = mqttService.connect("tcp://localhost:1883", this::renderData);
+        if (!connected) {
+            System.out.println("Dashboard started, but MQTT connection is unavailable.");
+            return;
+        }
 
-        connectBtn.setOnAction(e -> {
-            mqtt.connect(dataLabel);
-        });
+        System.out.println("Dashboard running successfully.");
+    }
 
-        VBox layout = new VBox(15);
-        layout.getChildren().addAll(title, connectBtn, dataLabel);
-
-        return new Scene(layout, 800, 600);
+    private void renderData(String message) {
+        System.out.println("[Dashboard] " + message);
     }
 }
